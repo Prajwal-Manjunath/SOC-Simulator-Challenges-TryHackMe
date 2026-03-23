@@ -57,7 +57,7 @@ This project demonstrates my ability to think and operate as a Tier 1 SOC Analys
 - Firewall log correlation
 - Asset correlation (IP to employee mapping)
 - Incident classification (True Positive / False Positive)
-- Alert correlation — linking related alerts to same incident
+- Alert correlation - linking related alerts to same incident
 - Escalation decision making
 - Professional SOC case report writing
 
@@ -77,31 +77,27 @@ This project demonstrates my ability to think and operate as a Tier 1 SOC Analys
 
 ## Alert Summaries
 
-### Alert 8814 — Spear Phishing targeting Julia Garcia
+### Alert 8814 - Spear Phishing targeting Julia Garcia
 - **What happened:** Attacker sent a targeted phishing email impersonating company HR from `onboarding@hrconnex.thm` to `j.garcia@thetrydaily.thm`
 - **Technique:** Spear Phishing - victim's name personalised in URL `/j.garcia`
 - **Outcome:** Julia did not click the link - confirmed via firewall logs
 - **Classification:** True Positive - No Escalation
-- **Key IOC:** `https://hrconnex.thm/onboarding/15400654060/j.garcia`
 
 ---
 
-### Alert 8815 — Repeat Spear Phishing targeting Julia Garcia
+### Alert 8815 - Repeat Spear Phishing targeting Julia Garcia
 - **What happened:** Same attacker sent Julia the identical phishing email again - 2nd attempt on same day
 - **Technique:** Persistent Spear Phishing campaign
 - **Outcome:** Julia did not click - threat contained
 - **Classification:** True Positive - No Escalation
-- **Notable:** Attacker sent same email twice in 6 minutes showing persistence
 
 ---
 
-### Alert 8816 — Firewall blocked malicious URL access by Hannah Harris
+### Alert 8816 - Firewall blocked malicious URL access by Hannah Harris
 - **What happened:** Firewall detected and blocked Hannah's machine attempting to connect to a known malicious URL
 - **Technique:** Brand Impersonation - fake Amazon delivery email from `urgents@amazon.biz`
 - **Outcome:** Hannah clicked the link but firewall blocked the connection
 - **Classification:** True Positive - No Escalation
-- **Key IOC:** `http://bit.ly/3sHkX3da12340` → `67.199.248.11`
-- **Note:** This alert is correlated with Alert 8817 - same incident, two alerts
 
 ---
 
@@ -114,13 +110,12 @@ This project demonstrates my ability to think and operate as a Tier 1 SOC Analys
 
 ---
 
-### Alert 8818 - Microsoft Credential Harvesting targeting Charlotte Allen 🚨
+### Alert 8818 - Microsoft Credential Harvesting targeting Charlotte Allen 
 - **What happened:** Phishing email impersonating Microsoft sent from `no-reply@m1crosoftsupport.co` to `c.allen@thetrydaily.thm`. Charlotte clicked the link and the firewall ALLOWED the connection to a credential harvesting page
 - **Technique:** Typosquatting -  `i` replaced with `1` in `m1crosoftsupport.co`
-- **Outcome:** Charlotte connected to fake Microsoft login page — credentials likely harvested
-- **Classification:** True Positive - **Escalation Required** 🚨
+- **Outcome:** Charlotte connected to fake Microsoft login page - credentials likely harvested
+- **Classification:** True Positive - **Escalation Required** 
 - **Why Escalated:** Firewall allowed the connection unlike other alerts. Charlotte is in Web Development with access to company web infrastructure. Credentials considered compromised.
-- **Key IOCs:** `https://m1crosoftsupport.co/login` → `45.148.10.131`
 
 ---
 
