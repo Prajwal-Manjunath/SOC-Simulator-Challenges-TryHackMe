@@ -1,4 +1,4 @@
-# 🛡️ SOC Analyst Investigation — Phishing Detection
+# 🛡️ SOC Analyst Investigation - Phishing Detection
 
 ![TryHackMe](https://img.shields.io/badge/Platform-TryHackMe-red)
 ![SIEM](https://img.shields.io/badge/SIEM-Splunk-green)
@@ -72,7 +72,7 @@ This project demonstrates my ability to think and operate as a Tier 1 SOC Analys
 
 ---
 
-##  Alert 8814 — Phishing Email Investigation
+##  Alert 8814 - Phishing Email Investigation
 
 ### Alert Details
 
@@ -86,26 +86,38 @@ This project demonstrates my ability to think and operate as a Tier 1 SOC Analys
 
 ---
 
-**3. Splunk — Email log results for hrconnex.thm**
-
-![Splunk Email Logs](images/03-splunk-email-logs.png)
-
+**3. Splunk Email log results for hrconnex.thm**
+ 
+Query used: `index=* "hrconnex.thm"`
+ 
+This broad search returned 3 events all from the email datasource. This confirmed the phishing email arrived in Julia's inbox. No firewall or proxy logs were found for this domain at this stage.
+ 
+![Splunk Email Logs](images/Splunk-1.png)
+ 
 ---
+ 
+**4. Splunk Firewall logs confirming no connection from Julia's machine**
+ 
+Two queries were used together to reach a conclusive finding:
+ 
+**Query 1 Did Julia click the link?**
+ 
+`index=* SourceIP="10.20.2.8" "hrconnex.thm" datasource="firewall"`
+ 
+This searched specifically for firewall logs showing Julia's machine (`10.20.2.8`) making any connection to `hrconnex.thm`. Result: 0 events no connection was recorded.
+ ![Splunk Firewall Logs](images/no-logs.png)
+**Query 2 Is firewall logging actually working?**
+ 
+`index=* datasource="firewall"`
+ 
+Before concluding Julia didn't click, I verified that the firewall was actively recording logs. Result: 42 firewall events found confirming the firewall is fully active and recording all connections across the network.
+ 
+**Combined Conclusion:** Since the firewall is confirmed working and recorded 42 other connections, the absence of any connection from Julia's machine to `hrconnex.thm` is conclusive proof that Julia did not click the link.
+ 
+![Splunk Firewall Logs](images/firewall-logging.png)
 
-**4. Splunk — Firewall logs confirming no connection from Julia's machine**
 
-![Splunk Firewall Logs](images/04-splunk-firewall-logs.png)
-
----
-
-> 💡 **How to add your screenshots:**
-> 1. Create a folder called `images` in your GitHub repository
-> 2. Upload your screenshots and name them exactly as shown above
-> 3. The images will automatically appear in place of the placeholders
-
----
-
-### 📧 Email Analysis
+### Email Analysis
 
 When I opened the alert, I found the following email details:
 
@@ -120,7 +132,7 @@ When I opened the alert, I found the following email details:
 
 ---
 
-### 🚩 Red Flags Identified
+### Red Flags Identified
 
 Before touching Splunk, I analysed the email and identified these red flags:
 
@@ -146,7 +158,7 @@ Before touching Splunk, I analysed the email and identified these red flags:
 
 ---
 
-### 👤 Asset Correlation
+### Asset Correlation
 
 Cross referenced the recipient with the company asset inventory:
 
@@ -158,13 +170,13 @@ Cross referenced the recipient with the company asset inventory:
 | Hostname | win-3452 |
 | IP Address | 10.20.2.8 |
 
-> 💡 **Why this matters:** Splunk logs don't say "Julia clicked a link." They say "10.20.2.8 made a connection." Asset correlation lets me translate technical identifiers back to real people and machines. This is the first step before any Splunk query.
+> **Why this matters:** Splunk logs don't say "Julia clicked a link." They say "10.20.2.8 made a connection." Asset correlation lets me translate technical identifiers back to real people and machines. This is the first step before any Splunk query.
 
 ---
 
-### 🔎 Splunk Investigation
+### Splunk Investigation
 
-#### ⚠️ Important Lesson — Field Names Vary By Environment
+#### Important Lesson — Field Names Vary By Environment
 > Splunk field names are not universal. Every company configures them differently. In this environment the fields were `SourceIP`, `DestinationIP`, `URL`, `Action` instead of the standard `src_ip`, `dest_ip`, `url`, `action`. Always check the Fields Panel on the left side of Splunk before writing queries.
 
 ---
@@ -205,16 +217,16 @@ index=* datasource="firewall"
 #### Investigation Conclusion
 
 ```
-Email logs    → Phishing email arrived in Julia's inbox        ✅
-Firewall logs → NO connection from 10.20.2.8 to hrconnex.thm  ✅
-Conclusion    → Julia did not click the malicious link         ✅
+Email logs    → Phishing email arrived in Julia's inbox        
+Firewall logs → NO connection from 10.20.2.8 to hrconnex.thm  
+Conclusion    → Julia did not click the malicious link         
 ```
 
-> 💡 **Critical thinking moment:** Always verify your log source is working before concluding nothing happened. If I had skipped Query 3, I wouldn't know if firewall logging was broken or if Julia genuinely didn't click. Query 3 gave my conclusion credibility.
+> **Critical thinking moment:** Always verify your log source is working before concluding nothing happened. If I had skipped Query 3, I wouldn't know if firewall logging was broken or if Julia genuinely didn't click. Query 3 gave my conclusion credibility.
 
 ---
 
-### 🧾 Case Report
+###  Case Report
 
 ---
 
@@ -258,13 +270,13 @@ Escalation is not required because Julia did not click the link. This was confir
 
 ---
 
-## 📁 Alert 8816 — Blacklisted URL Investigation
+## Alert 8816 — Blacklisted URL Investigation
 
-> 🔄 **Investigation in progress — to be updated**
+> **Investigation in progress — to be updated**
 
 ---
 
-## 📚 Key Learnings From This Project
+##  Key Learnings From This Project
 
 ### 1. Splunk Field Names Vary By Environment
 Never assume field names. Always check the Fields Panel first. What is `src_ip` in one environment could be `SourceIP` in another.
@@ -283,23 +295,6 @@ Never guess. Every conclusion must be backed by log evidence. "Julia didn't clic
 
 ### 6. Asset Correlation Is The First Step
 Logs speak in IPs and hostnames. Analysts speak in names and departments. The asset inventory bridges that gap and should always be checked before writing any Splunk query.
-
----
-
-## 🔗 Resources
-
-- [TryHackMe SOC Simulator](https://tryhackme.com)
-- [Splunk Documentation](https://docs.splunk.com)
-- [MITRE ATT&CK — Phishing](https://attack.mitre.org/techniques/T1566/)
-
----
-
-## 👨‍💻 About Me
-
-Cybersecurity enthusiast actively building hands-on SOC analyst skills through real-world simulations, home lab projects, and continuous learning.
-
-- 🔗 [GitHub](https://github.com/Prajwal-Manjunath)
-- 📧 Available for SOC Analyst / Security Analyst roles
 
 ---
 
