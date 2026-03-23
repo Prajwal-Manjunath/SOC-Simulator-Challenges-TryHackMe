@@ -8,6 +8,8 @@
 ![Alerts](https://img.shields.io/badge/Alerts%20Closed-5%2F5-brightgreen)
 ![Accuracy](https://img.shields.io/badge/Accuracy-5%2F5%20Correct-orange)
 
+## 🎯 TryHackMe Profile
+[![TryHackMe Profile](images/profile.png)](https://tryhackme.com/p/KnightZeusDracobolt)
 ---
 ## Scenario Result
 
