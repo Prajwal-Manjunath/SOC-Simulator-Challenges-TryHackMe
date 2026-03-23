@@ -144,7 +144,7 @@ Before touching Splunk, I analysed the email and identified these red flags:
 **2. Spear Phishing Indicator**
 - The malicious URL contained the victim's username: `/j.garcia`
 - This means the attacker specifically targeted Julia Garcia
-- This is called Spear Phishing — a targeted attack on one specific person
+- This is called Spear Phishing a targeted attack on one specific person
 
 **3. Urgency Tactic**
 - Subject line says "Action Required"
@@ -170,61 +170,17 @@ Cross referenced the recipient with the company asset inventory:
 | Hostname | win-3452 |
 | IP Address | 10.20.2.8 |
 
-> **Why this matters:** Splunk logs don't say "Julia clicked a link." They say "10.20.2.8 made a connection." Asset correlation lets me translate technical identifiers back to real people and machines. This is the first step before any Splunk query.
-
----
-
-### Splunk Investigation
-
-#### Important Lesson — Field Names Vary By Environment
-> Splunk field names are not universal. Every company configures them differently. In this environment the fields were `SourceIP`, `DestinationIP`, `URL`, `Action` instead of the standard `src_ip`, `dest_ip`, `url`, `action`. Always check the Fields Panel on the left side of Splunk before writing queries.
-
----
-
-#### Query 1 — Broad Domain Search
-**Purpose:** Find ALL logs mentioning the suspicious domain regardless of log source
-
-```splunk
-index=* "hrconnex.thm"
-```
-
-**Result:** Found 3 events — all from email datasource confirming the phishing email arrived in Julia's inbox
-
----
-
-#### Query 2 — Check If Julia Clicked The Link
-**Purpose:** Search firewall logs to see if Julia's machine made a connection to the attacker's domain
-
-```splunk
-index=* SourceIP="10.20.2.8" "hrconnex.thm"
-```
-
-**Result:** No results returned — no firewall connection logged from Julia's machine to hrconnex.thm
-
----
-
-#### Query 3 — Verify Firewall Logging Is Active
-**Purpose:** Before concluding Julia didn't click, verify that firewall logs are actually being recorded in Splunk
-
-```splunk
-index=* datasource="firewall"
-```
-
-**Result:** Firewall logs confirmed active and recording connections from other machines — proving the absence of results in Query 2 is meaningful
-
----
+> **Why this matters:** Splunk logs don't say "Julia clicked a link." They say "10.20.2.8 made a connection." Asset correlation lets me translate technical identifiers back to real people and machines.
 
 #### Investigation Conclusion
 
-```
-Email logs    → Phishing email arrived in Julia's inbox        
-Firewall logs → NO connection from 10.20.2.8 to hrconnex.thm  
-Conclusion    → Julia did not click the malicious link         
-```
+| Query | Purpose | Result |
+|-------|---------|--------|
+| `index=* "hrconnex.thm"` | Find all logs for domain | 3 email events found |
+| `index=* SourceIP="10.20.2.8" "hrconnex.thm" datasource="firewall"` | Did Julia click? | 0 events |
+| `index=* datasource="firewall"` | Is firewall working? | 42 events confirmed |
 
-> **Critical thinking moment:** Always verify your log source is working before concluding nothing happened. If I had skipped Query 3, I wouldn't know if firewall logging was broken or if Julia genuinely didn't click. Query 3 gave my conclusion credibility.
-
----
+**Final Conclusion:** Julia did not click the link. Proven by zero firewall connections from her machine, with firewall logging confirmed active.
 
 ###  Case Report
 
@@ -266,35 +222,7 @@ Escalation is not required because Julia did not click the link. This was confir
 | Malicious URL | https://hrconnex.thm/onboarding/15400654060/j.garcia |
 | Attacker Domain | hrconnex.thm |
 | Tactic Used | Spear Phishing |
-| Social Engineering | Urgency — "Action Required" subject line |
-
----
-
-## Alert 8816 — Blacklisted URL Investigation
-
-> **Investigation in progress — to be updated**
-
----
-
-##  Key Learnings From This Project
-
-### 1. Splunk Field Names Vary By Environment
-Never assume field names. Always check the Fields Panel first. What is `src_ip` in one environment could be `SourceIP` in another.
-
-### 2. No Results Does Not Mean Nothing Happened
-Always verify your log source is working before concluding nothing happened. I confirmed firewall logs were active before concluding Julia didn't click.
-
-### 3. Time Range Is Critical In Splunk
-Splunk defaults to short time windows. Always adjust the time range to cover the alert timestamp or you will miss events entirely.
-
-### 4. Classification Is About The Threat Not The Outcome
-A phishing email is a True Positive whether the victim clicked or not. The attack was real. The outcome affects escalation, not classification.
-
-### 5. Evidence Based Conclusions Only
-Never guess. Every conclusion must be backed by log evidence. "Julia didn't click" is only valid because firewall logs proved it — not because we assumed it.
-
-### 6. Asset Correlation Is The First Step
-Logs speak in IPs and hostnames. Analysts speak in names and departments. The asset inventory bridges that gap and should always be checked before writing any Splunk query.
+| Social Engineering | Urgency  "Action Required" subject line |
 
 ---
 
